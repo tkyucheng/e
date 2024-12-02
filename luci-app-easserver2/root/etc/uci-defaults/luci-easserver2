@@ -1,0 +1,49 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	set dhcp.@dnsmasq[0].localuse=1
+	commit dhcp
+	[ -e "/etc/config/ucitrack" ] && {
+	delete ucitrack.@easserver2[-1]
+	add ucitrack easserver2
+	set ucitrack.@easserver2[-1].init=easserver2
+	commit ucitrack
+	}
+	delete firewall.easserver2
+	set firewall.easserver2=include
+	set firewall.easserver2.type=script
+	set firewall.easserver2.path=/var/etc/easserver2.include
+	set firewall.easserver2.reload=1
+	commit firewall
+	[ -e "/etc/config/ucitrack" ] && {
+	delete ucitrack.@easserver2_server[-1]
+	add ucitrack easserver2_server
+	set ucitrack.@easserver2_server[-1].init=easserver2_server
+	commit ucitrack
+	}
+	delete firewall.easserver2_server
+	set firewall.easserver2_server=include
+	set firewall.easserver2_server.type=script
+	set firewall.easserver2_server.path=/var/etc/easserver2_server.include
+	set firewall.easserver2_server.reload=1
+	commit firewall
+	set uhttpd.main.max_requests=50
+	commit uhttpd
+EOF
+
+[ ! -s "/etc/config/easserver2" ] && cp -f /usr/share/easserver2/0_default_config /etc/config/easserver2
+
+chmod +x /usr/share/easserver2/*.sh
+
+[ -e "/etc/config/easserver2_show" ] && rm -rf /etc/config/easserver2_show
+
+[ "$(uci -q get easserver2.@global_xray[0].sniffing)" == "1" ] && [ "$(uci -q get easserver2.@global_xray[0].route_only)" != "1" ] && uci -q set easserver2.@global_xray[0].sniffing_override_dest=1
+uci -q delete easserver2.@global_xray[0].sniffing
+uci -q delete easserver2.@global_xray[0].route_only
+uci -q commit easserver2
+
+rm -f /tmp/luci-indexcache
+rm -rf /tmp/luci-modulecache/
+killall -HUP rpcd 2>/dev/null
+
+exit 0

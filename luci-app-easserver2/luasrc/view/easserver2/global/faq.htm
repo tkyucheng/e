@@ -1,0 +1,70 @@
+<%
+local api = require "luci.easserver2.api"
+-%>
+<style>
+    .dns-con {
+      padding: 1rem;
+    }
+    .faq-title {
+      color: var(--primary);
+      font-weight: bolder;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+    .reset-title {
+     color: var(--primary)；
+     font-weight: bolder;
+     margin-bottom: 0.3rem;
+     display: inline-block;
+     margin-top: 1.2rem;
+     text-decoration: underline;
+    }
+    .dns-item {
+     margin-bottom: 0.8rem;
+     line-height:1.2rem;
+    }
+    .dns-list {
+		text-indent:1rem;
+		line-height: 1.2rem;
+}
+</style>
+<div class="cbi-section cbi-tblsection dns-con">
+	<div id="faq_dns">
+		<ul>
+            <b class="faq-title"><%:注意事项:%></b>
+			<li class="dns-item">1. <span><%:不要乱动，先看看使用说明再进行使用。%></span></li>
+			<li class="dns-item">2. <span><%:尽可能不要改备注会找不到对应的wifi。%></span></li>
+			<li class="dns-item">3. <span><%:格式需要去掉域名修改正确格式使用。%></span></li>
+			<li class="dns-item">4. <span><%:如隔一段时间出现超时一般是网线问题，确保格式正确的情况下，进入网络接口，点击LAN后面的连接按钮即可解决。（建议更换网线）%></span></li>
+			<li class="dns-item">5. <span><%:如出现延时但无网络，点击系统里的系统同步浏览器时间即可。%></span></li>
+		</ul>
+	</div>
+</div>
+
+<script>
+	var origin = window.location.origin;
+	var reset_url = origin + "<%=api.url("reset_config")%>";
+	var hide_url = origin + "<%=api.url("hide")%>";
+	var show_url = origin + "<%=api.url("show")%>";
+	
+	function reset(url) {
+		if (confirm('<%:Are you sure to reset?%>') == true) {
+			window.location.href = reset_url;
+		}
+	}
+	
+	function hide(url) {
+		if (confirm('<%:Are you sure to hide?%>') == true) {
+			window.location.href = hide_url;
+		}
+	}
+	
+	var dom = document.getElementById("faq_reset");
+    if (dom) {
+		var li = "";
+		li += "<a href='#' class='reset-title' onclick='reset()'>" + "<%: Restore to default configuration:%>"+ "</a>" + "<br />" + " <%: Browser access: %>" + "<a href='#' onclick='reset()'>" + reset_url + "</a>" + "<br />";
+		li += "<a href='#' class='reset-title' onclick='hide()'>" + "<%: Hide in main menu:%>"+ "</a>" + "<br />" + "<%: Browser access: %>" + "<a href='#' onclick='hide()'>" + hide_url + "</a>" + "<br />";
+		li += "<a href='#' class='reset-title'>" + "<%: Show in main menu:%>"+ "</a>" + "<br />" +"<%: Browser access: %>" + "<a href='#'>" + show_url + "</a>" + "<br />";
+		dom.innerHTML = li;
+	}
+</script>
